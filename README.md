@@ -59,7 +59,7 @@ A single ball follows a random path. Before the ball is released, its final bin 
 For a board with $n$ rows and a probability $p$ of moving right at each row, the final bin index $K$ has the distribution
 
 $$
-K \sim \operatorname{Binomial}(n,p).
+K \sim \mathrm{Binomial}(n,p).
 $$
 
 The probability of finishing in bin $k$ is
@@ -168,7 +168,7 @@ Descriptions and developments of the apparatus also appeared in Galton's later w
 Galton noticed a conceptual difficulty. If each generation merely added a new independent set of deviations, variation would continually increase:
 
 $$
-\operatorname{Var}(X_1+\cdots+X_n) = \sum_{i=1}^{n}\operatorname{Var}(X_i)
+\mathrm{Var}(X_1+\cdots+X_n) = \sum_{i=1}^{n}\mathrm{Var}(X_i)
 $$
 
 for independent increments.
@@ -393,7 +393,7 @@ A **Bernoulli trial** has two possible outcomes.
 Let
 
 $$
-X\sim\operatorname{Bernoulli}(p).
+X\sim\mathrm{Bernoulli}(p).
 $$
 
 Then
@@ -423,7 +423,7 @@ $$
 The variance is
 
 $$
-\operatorname{Var}(X)=p(1-p)=pq.
+\mathrm{Var}(X)=p(1-p)=pq.
 $$
 
 The standard deviation is
@@ -435,7 +435,7 @@ $$
 For $p=1/2$,
 
 $$
-\mathrm{E}[X]=\frac{1}{2}, \qquad \operatorname{Var}(X)=\frac{1}{4}.
+\mathrm{E}[X]=\frac{1}{2}, \qquad \mathrm{Var}(X)=\frac{1}{4}.
 $$
 
 ---
@@ -491,7 +491,7 @@ $$
 and
 
 $$
-\operatorname{Var}(S_n)=4np(1-p).
+\mathrm{Var}(S_n)=4np(1-p).
 $$
 
 For $p=1/2$,
@@ -503,7 +503,7 @@ $$
 and
 
 $$
-\operatorname{Var}(S_n)=n.
+\mathrm{Var}(S_n)=n.
 $$
 
 Thus the typical random-walk displacement grows like $\sqrt{n}$ rather than $n$.
@@ -521,7 +521,7 @@ $$
 has a binomial distribution:
 
 $$
-K\sim\operatorname{Binomial}(n,p).
+K\sim\mathrm{Binomial}(n,p).
 $$
 
 ## Derivation of the probability mass function
@@ -675,7 +675,7 @@ The binomial theorem therefore provides both the algebraic and probabilistic nor
 Let
 
 $$
-K\sim\operatorname{Binomial}(n,p)
+K\sim\mathrm{Binomial}(n,p)
 $$
 
 and define
@@ -695,7 +695,7 @@ The expected bin is the number of rows multiplied by the right probability.
 ## Variance
 
 $$
-\sigma^2=\operatorname{Var}(K)=npq.
+\sigma^2=\mathrm{Var}(K)=npq.
 $$
 
 ## Standard deviation
@@ -745,7 +745,7 @@ Generating functions provide compact descriptions of a distribution.
 
 ## Probability-generating function
 
-For $K\sim\operatorname{Binomial}(n,p)$,
+For $K\sim\mathrm{Binomial}(n,p)$,
 
 $$
 G_K(z) = \mathrm{E}[z^K] = (1-p+pz)^n.
@@ -780,7 +780,7 @@ $$
 and
 
 $$
-\operatorname{Var}(K) = \mathrm{E}[K^2]-\mathrm{E}[K]^2 = np(1-p).
+\mathrm{Var}(K) = \mathrm{E}[K^2]-\mathrm{E}[K]^2 = np(1-p).
 $$
 
 ## Characteristic function
@@ -820,7 +820,7 @@ $$
 The complete count vector has a multinomial distribution:
 
 $$
-(N_0,N_1,\ldots,N_n) \sim \operatorname{Multinomial} (M;\pi_0,\pi_1,\ldots,\pi_n).
+(N_0,N_1,\ldots,N_n) \sim \mathrm{Multinomial} (M;\pi_0,\pi_1,\ldots,\pi_n).
 $$
 
 The expected bin count is
@@ -832,13 +832,13 @@ $$
 The variance is
 
 $$
-\operatorname{Var}(N_k) = M\pi_k(1-\pi_k).
+\mathrm{Var}(N_k) = M\pi_k(1-\pi_k).
 $$
 
 For two different bins $j\neq k$,
 
 $$
-\operatorname{Cov}(N_j,N_k) = -M\pi_j\pi_k.
+\mathrm{Cov}(N_j,N_k) = -M\pi_j\pi_k.
 $$
 
 The covariance is negative because a ball entering one bin cannot simultaneously enter another.
@@ -858,13 +858,13 @@ $$
 and
 
 $$
-\operatorname{Var}(\widehat{\pi}_k) = \frac{\pi_k(1-\pi_k)}{M}.
+\mathrm{Var}(\widehat{\pi}_k) = \frac{\pi_k(1-\pi_k)}{M}.
 $$
 
 The standard error of an observed bin fraction is
 
 $$
-\operatorname{SE}(\widehat{\pi}_k) = \sqrt{\frac{\pi_k(1-\pi_k)}{M}}.
+\mathrm{SE}(\widehat{\pi}_k) = \sqrt{\frac{\pi_k(1-\pi_k)}{M}}.
 $$
 
 The histogram becomes less noisy as $M$ increases because standard errors decrease as $1/\sqrt{M}$.
@@ -976,7 +976,7 @@ A board can have many balls but too few rows, producing a very accurate estimate
 For
 
 $$
-K\sim\operatorname{Binomial}(n,p),
+K\sim\mathrm{Binomial}(n,p),
 $$
 
 define
@@ -1146,7 +1146,7 @@ Bins with very small expected counts should normally be combined before using th
 A simple descriptive discrepancy is
 
 $$
-\operatorname{RMSE} = \sqrt{ \frac{1}{n+1} \sum_{k=0}^{n} (\widehat{\pi}_k-\pi_k)^2 }.
+\mathrm{RMSE} = \sqrt{ \frac{1}{n+1} \sum_{k=0}^{n} (\widehat{\pi}_k-\pi_k)^2 }.
 $$
 
 ## Total variation distance
@@ -1194,7 +1194,7 @@ the board is biased.
 Then
 
 $$
-K\sim\operatorname{Binomial}(n,p),
+K\sim\mathrm{Binomial}(n,p),
 $$
 
 with
@@ -1218,7 +1218,7 @@ The simulator exposes $p$ as the **Right probability** control.
 If row $i$ has probability $p_i$, then
 
 $$
-K=\sum_{i=1}^{n}X_i, \qquad X_i\sim\operatorname{Bernoulli}(p_i),
+K=\sum_{i=1}^{n}X_i, \qquad X_i\sim\mathrm{Bernoulli}(p_i),
 $$
 
 but the variables are no longer identically distributed.
@@ -1238,7 +1238,7 @@ $$
 $$
 
 $$
-\operatorname{Var}(K) = \sum_{i=1}^{n}p_i(1-p_i),
+\mathrm{Var}(K) = \sum_{i=1}^{n}p_i(1-p_i),
 $$
 
 assuming independence.
@@ -2416,7 +2416,7 @@ If the seed and sequence of random calls are controlled identically, the probabi
 2. Change to $p=0.6$.
 3. Release more balls.
 
-The expected curve should represent the accumulated mixture rather than a single $\operatorname{Binomial}(n,0.6)$ law applied to all balls.
+The expected curve should represent the accumulated mixture rather than a single $\mathrm{Binomial}(n,0.6)$ law applied to all balls.
 
 ---
 
