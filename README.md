@@ -1049,7 +1049,7 @@ $$
 P(a\leq K\leq b) \approx \Phi\left( \frac{b+0.5-np}{\sqrt{np(1-p)}} \right) - \Phi\left( \frac{a-0.5-np}{\sqrt{np(1-p)}} \right).
 $$
 
-Continuity correction can substantially improve finite-$n$ approximations.
+Continuity correction can substantially improve finite-n approximations.
 
 ---
 
