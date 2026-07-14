@@ -2006,27 +2006,11 @@ From the repository directory:
 python script.py
 ```
 
-If the script has been renamed:
-
-```bat
-python script.py
-```
-
 ## Run through the Python launcher
 
 ```bat
 py -3.10 script.py
 ```
-
-## Run without a console window
-
-On Windows, `pythonw.exe` starts a graphical script without a Command Prompt console:
-
-```bat
-pythonw script.py
-```
-
-For debugging, prefer `python.exe` so tracebacks remain visible.
 
 ---
 
@@ -2120,17 +2104,17 @@ python -m PyInstaller ^
   --clean ^
   --windowed ^
   --onedir ^
-  --name GaltonBoardSimulator ^
+  --name script ^
   script.py
 ```
 
 Output:
 
 ```text
-dist\GaltonBoardSimulator\GaltonBoardSimulator.exe
+dist\script\script.exe
 ```
 
-Distribute the entire `GaltonBoardSimulator` directory.
+Distribute the entire `script` directory.
 
 ## Single-file build
 
@@ -2140,14 +2124,14 @@ python -m PyInstaller ^
   --clean ^
   --windowed ^
   --onefile ^
-  --name GaltonBoardSimulator ^
+  --name script ^
   script.py
 ```
 
 Output:
 
 ```text
-dist\GaltonBoardSimulator.exe
+dist\script.exe
 ```
 
 A one-file executable normally starts more slowly because its embedded files are extracted to a temporary directory at launch.
@@ -2160,7 +2144,7 @@ python -m PyInstaller ^
   --clean ^
   --windowed ^
   --onefile ^
-  --name GaltonBoardSimulator ^
+  --name script ^
   --icon assets\galton.ico ^
   script.py
 ```
@@ -2172,14 +2156,14 @@ The icon must be a Windows `.ico` file.
 ```bat
 rmdir /s /q build
 rmdir /s /q dist
-del GaltonBoardSimulator.spec
+del script.spec
 
 python -m PyInstaller ^
   --noconfirm ^
   --clean ^
   --windowed ^
   --onefile ^
-  --name GaltonBoardSimulator ^
+  --name script ^
   script.py
 ```
 
@@ -2191,7 +2175,7 @@ python -m PyInstaller ^
   --clean ^
   --windowed ^
   --onefile ^
-  --name GaltonBoardSimulator ^
+  --name script ^
   script.py
 ```
 
@@ -2204,7 +2188,7 @@ python -m PyInstaller ^
   --noconfirm ^
   --clean ^
   --onefile ^
-  --name GaltonBoardSimulatorDebug ^
+  --name scriptDebug ^
   script.py
 ```
 
