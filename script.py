@@ -108,8 +108,8 @@ Keyboard controls
     B           Queue a burst of 100 balls
     Up          Increase automatic release rate
     Down        Decrease automatic release rate
-    H           Show or hide the help overlay
-    Esc         Close the program through the controlled shutdown routine
+    H or F1     Show or hide the complete keyboard-help overlay
+    Esc         Close help first; press again to close the program
 
 Interface parameters
 --------------------
@@ -1149,7 +1149,7 @@ class GaltonBoardApp:
 
         tk.Label(
             panel,
-            text="Space pause   N one   B burst   R reset   H help",
+            text="Space pause  N one  B burst  R reset  Up/Down rate  H/F1 help  Esc exit",
             anchor="w",
             bg=MAHOGANY_DEEP,
             fg=PANEL_FOOTER,
@@ -1271,20 +1271,67 @@ class GaltonBoardApp:
 
     def _bind_events(self) -> None:
         """
-        Bind keyboard shortcuts to the same operations exposed by the control buttons.
+        Install one application-wide keyboard dispatcher.
+
+        ``bind_all`` is used instead of binding only to the root window because
+        Tk controls such as scales, buttons, checkbuttons, and option menus can
+        own the keyboard focus. Returning ``"break"`` prevents a focused widget
+        from also processing a shortcut, which previously caused inconsistent
+        behaviour for the arrow keys and letter shortcuts.
         """
-        self.root.bind("<space>", lambda _event: self.toggle_pause())
-        self.root.bind("r", lambda _event: self.reset())
-        self.root.bind("R", lambda _event: self.reset())
-        self.root.bind("n", lambda _event: self.release_one())
-        self.root.bind("N", lambda _event: self.release_one())
-        self.root.bind("b", lambda _event: self.release_burst())
-        self.root.bind("B", lambda _event: self.release_burst())
-        self.root.bind("h", lambda _event: self.toggle_help())
-        self.root.bind("H", lambda _event: self.toggle_help())
-        self.root.bind("<Up>", lambda _event: self.adjust_release_rate(+2.0))
-        self.root.bind("<Down>", lambda _event: self.adjust_release_rate(-2.0))
-        self.root.bind("<Escape>", lambda _event: self.close())
+        self.root.bind_all("<KeyPress>", self._handle_keypress, add="+")
+
+    def _handle_keypress(self, event: tk.Event) -> str | None:
+        """
+        Execute one keyboard command and suppress conflicting widget bindings.
+
+        Letter shortcuts are case-insensitive. The handler ignores ordinary
+        text entry while an OptionMenu is actively posting its menu, but the
+        global simulation shortcuts remain available from all normal controls.
+        """
+        if self._closing:
+            return "break"
+
+        keysym = str(event.keysym)
+        key = keysym.lower()
+
+        if keysym == "space":
+            self.toggle_pause()
+            return "break"
+
+        if key == "r":
+            self.reset()
+            return "break"
+
+        if key == "n":
+            self.release_one()
+            return "break"
+
+        if key == "b":
+            self.release_burst()
+            return "break"
+
+        if key == "h" or keysym == "F1":
+            self.toggle_help()
+            return "break"
+
+        if keysym == "Up":
+            self.adjust_release_rate(+2.0)
+            return "break"
+
+        if keysym == "Down":
+            self.adjust_release_rate(-2.0)
+            return "break"
+
+        if keysym == "Escape":
+            if self.show_help:
+                self.show_help = False
+                self._draw(self._layout())
+            else:
+                self.close()
+            return "break"
+
+        return None
 
     # ------------------------------------------------------------------
     # Controls
@@ -1347,6 +1394,12 @@ class GaltonBoardApp:
         self._closing = True
         self.running = False
 
+        # Remove the application-wide keyboard dispatcher before destroying Tk.
+        try:
+            self.root.unbind_all("<KeyPress>")
+        except tk.TclError:
+            pass
+
         # Hide the window immediately. This gives prompt visual feedback even
         # when the current scene contains many Canvas objects.
         try:
@@ -1398,9 +1451,19 @@ class GaltonBoardApp:
 
     def toggle_help(self) -> None:
         """
-        Show or hide the in-canvas help panel.
+        Show or hide the complete keyboard-help overlay immediately.
+
+        An explicit redraw makes the result independent of simulation state and
+        ensures that the panel appears correctly while the simulation is paused.
         """
+        if self._closing:
+            return
+
         self.show_help = not self.show_help
+        try:
+            self._draw(self._layout())
+        except tk.TclError:
+            pass
 
     def adjust_release_rate(self, amount: float) -> None:
         """
@@ -3027,64 +3090,202 @@ class GaltonBoardApp:
 
     def _draw_help(self, layout: Layout) -> None:
         """
-        Draw an opaque explanatory overlay containing controls and model information.
+        Draw a responsive, high-contrast keyboard and controls reference panel.
+
+        The panel uses separate text items rather than one long wrapped string.
+        This avoids blank or clipped help content on some Windows/Tk font and
+        scaling combinations.
         """
-        width = min(640.0, layout.width - 80.0)
-        height = 360.0
+        margin = 44.0
+        width = min(820.0, max(620.0, layout.width - 2.0 * margin))
+        height = min(560.0, max(470.0, layout.height - 2.0 * margin))
         x0 = (layout.width - width) / 2.0
         y0 = (layout.height - height) / 2.0
+        x1 = x0 + width
+        y1 = y0 + height
 
+        # Dim the board behind the panel using a dense stipple pattern.
         self.canvas.create_rectangle(
-            x0 + 8.0,
-            y0 + 9.0,
-            x0 + width + 8.0,
-            y0 + height + 9.0,
-            fill=WALL_TOP,
+            0,
+            0,
+            layout.width,
+            layout.height,
+            fill=WALL_SHADOW,
+            outline="",
+            stipple="gray50",
+        )
+
+        # Shadow and panel body.
+        self.canvas.create_rectangle(
+            x0 + 10.0,
+            y0 + 12.0,
+            x1 + 10.0,
+            y1 + 12.0,
+            fill=WALL_SHADOW,
             outline="",
         )
         self.canvas.create_rectangle(
             x0,
             y0,
-            x0 + width,
-            y0 + height,
+            x1,
+            y1,
             fill=PARCHMENT,
-            outline=MAHOGANY_DEEP,
-            width=3,
+            outline=MAHOGANY_HIGHLIGHT,
+            width=4,
         )
 
+        # Header.
+        self.canvas.create_rectangle(
+            x0,
+            y0,
+            x1,
+            y0 + 58.0,
+            fill=MAHOGANY_DARK,
+            outline="",
+        )
         self.canvas.create_text(
-            x0 + 26.0,
+            x0 + 24.0,
+            y0 + 18.0,
+            anchor="nw",
+            text="KEYBOARD CONTROLS",
+            fill=CREAM,
+            font=("Georgia", 18, "bold"),
+        )
+        self.canvas.create_text(
+            x1 - 24.0,
             y0 + 22.0,
-            anchor="nw",
-            text="Controls and visual settings",
-            fill=INK,
-            font=("Georgia", 16, "bold"),
+            anchor="ne",
+            text="H or F1 closes help",
+            fill=BRASS_LIGHT,
+            font=("Segoe UI", 9, "bold"),
         )
 
-        body = (
-            "Release rate controls how frequently balls enter the board.\n"
-            "Fall speed changes animation timing without changing probability.\n"
-            "Right probability sets p in the exact Binomial(rows, p) model.\n"
-            "Bounce amplitude changes only the visual deflection around each peg.\n"
-            "Ball size affects newly released balls.\n"
-            "Impact intensity controls rings and metallic spark particles.\n"
-            "Marble gloss controls specular highlights and internal reflections.\n"
-            "Board lighting controls metal and glass highlights.\n\n"
-            "Marble piles show the settled distribution as packed balls. The red "
-            "curve is the exact accumulated theoretical expectation, including "
-            "runs where p is changed during the simulation.\n\n"
-            "Press H to close this panel."
+        left_x = x0 + 30.0
+        mid_x = x0 + width * 0.50
+        top_y = y0 + 82.0
+        line_gap = 35.0
+
+        shortcuts = (
+            ("Space", "Pause or resume the simulation"),
+            ("R", "Reset balls, effects, counters, and histograms"),
+            ("N", "Release one ball immediately"),
+            ("B", "Queue a burst of 100 balls"),
+            ("Up", "Increase release rate by 2 balls/s"),
+            ("Down", "Decrease release rate by 2 balls/s"),
+            ("H / F1", "Show or hide this help panel"),
+            ("Esc", "Close help first; press again to exit"),
         )
 
         self.canvas.create_text(
-            x0 + 26.0,
-            y0 + 64.0,
+            left_x,
+            top_y - 24.0,
             anchor="nw",
-            width=width - 52.0,
-            text=body,
-            fill=INK,
-            font=("Segoe UI", 10),
-            spacing3=6,
+            text="SHORTCUTS",
+            fill=MAHOGANY_DEEP,
+            font=("Segoe UI", 10, "bold"),
+        )
+
+        for index, (key_name, description) in enumerate(shortcuts):
+            y = top_y + index * line_gap
+
+            self.canvas.create_rectangle(
+                left_x,
+                y,
+                left_x + 78.0,
+                y + 25.0,
+                fill=SLIDER_BACKGROUND,
+                outline=SLIDER_BORDER,
+                width=1,
+            )
+            self.canvas.create_text(
+                left_x + 39.0,
+                y + 12.5,
+                text=key_name,
+                fill=INK,
+                font=("Consolas", 9, "bold"),
+            )
+            self.canvas.create_text(
+                left_x + 92.0,
+                y + 4.0,
+                anchor="nw",
+                text=description,
+                fill=INK,
+                font=("Segoe UI", 9),
+            )
+
+        info_x = mid_x + 18.0
+        self.canvas.create_text(
+            info_x,
+            top_y - 24.0,
+            anchor="nw",
+            text="MODEL AND DISPLAY",
+            fill=MAHOGANY_DEEP,
+            font=("Segoe UI", 10, "bold"),
+        )
+
+        model_lines = (
+            "Right probability sets p in the exact Binomial(n, p) model.",
+            "Release rate changes sampling speed, not probability.",
+            "Fall speed and bounce amplitude affect animation only.",
+            "Ball size, gloss, lighting, trails, impacts, and glass are visual.",
+            "Marble piles represent the observed receiving-bin counts.",
+            "The theory curve is the accumulated exact binomial expectation.",
+            "Changing colour layout preserves balls, counts, and parameters.",
+            "Keyboard shortcuts work even when a slider or button has focus.",
+        )
+
+        y = top_y
+        wrap_width = max(260.0, width * 0.42)
+        for line in model_lines:
+            self.canvas.create_oval(
+                info_x,
+                y + 5.0,
+                info_x + 7.0,
+                y + 12.0,
+                fill=MAHOGANY_HIGHLIGHT,
+                outline="",
+            )
+            item = self.canvas.create_text(
+                info_x + 16.0,
+                y,
+                anchor="nw",
+                width=wrap_width,
+                text=line,
+                fill=INK,
+                font=("Segoe UI", 9),
+            )
+            bbox = self.canvas.bbox(item)
+            used_height = 30.0 if bbox is None else max(30.0, bbox[3] - bbox[1] + 9.0)
+            y += used_height
+
+        # Footer formula and close instruction.
+        footer_y = y1 - 70.0
+        self.canvas.create_line(
+            x0 + 24.0,
+            footer_y - 8.0,
+            x1 - 24.0,
+            footer_y - 8.0,
+            fill=SLIDER_BORDER,
+            width=1,
+        )
+        self.canvas.create_text(
+            x0 + 30.0,
+            footer_y + 3.0,
+            anchor="nw",
+            text=(
+                "K = X1 + X2 + ... + Xn     "
+                "P(K = k) = C(n,k) p^k (1-p)^(n-k)"
+            ),
+            fill=MAHOGANY_DEEP,
+            font=("Consolas", 10, "bold"),
+        )
+        self.canvas.create_text(
+            x1 - 30.0,
+            y1 - 22.0,
+            anchor="se",
+            text="Press H, F1, or Esc to return to the board",
+            fill=MUTED,
+            font=("Segoe UI", 9, "italic"),
         )
 
     # ------------------------------------------------------------------
